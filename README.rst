@@ -7,11 +7,12 @@ What are these scripts?
 =======================
 
 These scripts are here to help you compute Lafon's specificity with only the
-terminal. They are pure python scripts, meaning there are no dependencies that
-need to be installed and anyone can launch them. These script can be configured
-to try and emulate some existing tools that provide ways to compute Lafon
-specificity, namely TXM and itrameur. The emulation of these tools are guess
-work, do not expect to have the same results.
+terminal. They are pure python scripts without any dependency that needs to be
+installed and anyone can launch them. These script can be configured to try and
+emulate some existing tools that provide ways to compute Lafon specificity,
+namely `TXM <https://txm.gitpages.huma-num.fr/textometrie/>`_ and
+`itrameur <http://www.tal.univ-paris3.fr/trameur/iTrameur/>`_. The emulation of
+these tools are mostly guess work, do not expect to have the same results.
 
 Why use these scripts?
 ----------------------
@@ -19,11 +20,12 @@ Why use these scripts?
 There are some uses for these script, including but not limited to:
 
 - no install (except for python on Windows), no dependencies, command line only
-- minimal data preprocessing (one token per line)
+- minimal data preprocessing required (one token per line)
 - no indexing, this saves time in big input
 - command line options for quick and versatile configuration
 
-This is not a drop-in replacement of existing tools.
+This is not a drop-in replacement of existing tools. I just made these scripts
+to have some way to quickly try stuff and just share them.
 
 License
 -------
@@ -93,7 +95,7 @@ cooccurrents.py
 partitioning required, you simply provide the corpus as multiple arguments
 with no options. It also takes a target token to gather its cooccurrents. Since
 it would be error prone to simply provide the target token as a simple argument
-(il could be mistaken with a file of the corpus), the target token has to be
+(it could be mistaken with a file of the corpus), the target token has to be
 provided with the required option `--target`:
 
 .. code-block:: bash
