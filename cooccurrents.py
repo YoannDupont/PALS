@@ -105,7 +105,7 @@ def log_hypergeometric(T: int, t: int, F: int, f: int) -> float:
     return a + b - c
 
 
-def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'TXM') -> float:
+def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'None') -> float:
     """
     Compute Lafon specificity given corpus and subcorpus counts. Internally, it
     uses a symmertry in the hypergeometric formula for a quicker computation.
@@ -123,7 +123,7 @@ def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'TXM
         Number of times the target token appears in the corpus. F <= T
     f : int
         Number of times the target token appears in the subcorpus. f <= min(t, F)
-    tool_emulation : string = 'TXM'
+    tool_emulation : string = 'None'
         None, TXM or itrameur. Aims to provide results this tool would have given with the same configuration.
     """
 
@@ -197,7 +197,7 @@ def get_counts(
     sentences: list[tuple[int,int]],
     target_indices: list[int],
     context_length: int,
-    tool_emulation: str='TXM',
+    tool_emulation: str='None',
 ):
     T: int = len(tokens)
     t: int = 0
@@ -250,7 +250,7 @@ def run(
     context_length: int = 10,
     min_frequency: int = 1,
     min_cofrequency: int = 1,
-    tool_emulation: str = 'TXM',
+    tool_emulation: str = 'None',
 ) -> None:
 
     if tool_emulation == 'itrameur':
