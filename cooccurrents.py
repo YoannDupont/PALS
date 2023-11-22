@@ -48,7 +48,6 @@ from math import log10
 # workaround to avoid regex dependency and keep script self-contained
 __punctuations = re.compile("[" + re.escape(string.punctuation) + "«»…" + "]+")
 
-# why?
 __tool_delta = {
     'itrameur': -1.0,
 }
@@ -84,9 +83,9 @@ def log_binomial(n: int, k: int) -> float:
     k = int(k)
 
     if n < 0 or k < 0:
-        raise ValueError('< 0')
+        raise ValueError('binomial: found number < 0')
     if k > n:
-        raise ValueError('k > n')
+        raise ValueError('binomial: k > n')
 
     if k == 0 or k == n:
         return 0.0
@@ -128,7 +127,7 @@ def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'Non
     """
 
     if any((t < 0, T < 0, f < 0, F < 0)):
-        raise ValueError('< 0')
+        raise ValueError('Lafon specificity: found count < 0')
 
     if t > T:
         if tool_emulation == 'itrameur': return 0.0
@@ -163,8 +162,8 @@ def read_corpus(
     tokens: list[str] = []
     sentences: list[tuple[int, int]] = []
     target_indices : list[int] = []
-    start: int = 0
-    end: int = 0
+    start = 0
+    end = 0
     ignore_punctuations = punctuations == 'ignore'
     do_fold = case_sensitivity in ('i', 'insensitive')
 
@@ -199,8 +198,8 @@ def get_counts(
     context_length: int,
     tool_emulation: str='None',
 ):
-    T: int = len(tokens)
-    t: int = 0
+    T = len(tokens)
+    t = 0
     Fs = Counter(tokens)
     fs = Counter()
     fs_tmp = Counter()
@@ -262,6 +261,9 @@ def run(
         # approximation because tokens may be separated by multiple delimiters.
         context_length = context_length // 2
 
+    if context_length < 1:
+        raise ValueError(f"Context length should be at least 1, but is {context_length}")
+
     print("Reading...", file=sys.stderr)
     tokens, sentences, target_indices = read_corpus(
         inputs, target, punctuations, case_sensitivity, match=match_strategy[match_mode]
@@ -299,15 +301,24 @@ def run(
     data.sort(key=lambda x: -x[-1])
 
     target_count = len(target_indices)  # works for both exact and regex match
+    target_shapes = set(tokens[idx] for idx in target_indices)
+    shape_counts = sorted([[shape, Fs[shape]] for shape in target_shapes], key=lambda x: -x[1])
+    if match_mode == 'regex':
+        target = f'{match_mode}={target}'
+        shape_counts.insert(0, [target, target_count])
 
     if tool_emulation == 'TXM':
         print('target', 'corpus size', 'frequency', sep='\t')
-        print(target, T, target_count, sep='\t')
+        #  print(target, T, target_count, sep='\t')
+        for shape, count in shape_counts:
+            print(shape, T, count, sep='\t')
     else:
         print('target', 'frequency', sep='\t')
-        print(target, target_count, sep='\t')
+        #  print(target, target_count, sep='\t')
+        for shape, count in shape_counts:
+            print(shape, count, sep='\t')
     print()
-
+    
     if tool_emulation == 'TXM':
         print('token', 'filtered corpus size', 'all contexts size', 'frequency', 'co-frequency', 'specificity', sep='\t')
     else:

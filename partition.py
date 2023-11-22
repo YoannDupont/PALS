@@ -80,9 +80,9 @@ def log_binomial(n: int, k: int) -> float:
     k = int(k)
 
     if n < 0 or k < 0:
-        raise ValueError('< 0')
+        raise ValueError('binomial: found number < 0')
     if k > n:
-        raise ValueError('k > n')
+        raise ValueError('binomial: k > n')
 
     if k == 0 or k == n:
         return 0.0
@@ -124,7 +124,7 @@ def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'Non
     """
 
     if any((t < 0, T < 0, f < 0, F < 0)):
-        raise ValueError('< 0')
+        raise ValueError('Lafon specificity: found count < 0')
 
     if t > T:
         if tool_emulation == 'itrameur': return 0.0
