@@ -12,7 +12,7 @@ installed and anyone can launch them. These script can be configured to try and
 emulate some existing tools that provide ways to compute Lafon specificity,
 namely `TXM <https://txm.gitpages.huma-num.fr/textometrie/>`_ and
 `itrameur <http://www.tal.univ-paris3.fr/trameur/iTrameur/>`_. The emulation of
-these tools are mostly guess work, do not expect to have the same results.
+these tools are mostly guess work, do not expect to have the exact same results.
 
 Why use these scripts?
 ----------------------
@@ -64,7 +64,12 @@ partition.py
 ------------
 
 `partition.py` wants to have a corpus split into parts. There are two ways to
-provides the parts that make up a corpus.
+provides the parts that make up a corpus. If you want some help on how the
+command works, you can provide the `--help` or `-h` option:
+
+.. code-block:: bash
+
+	python3 ./partition.py -h
 
 The first way is to repeatedly provide data by using the `--input` or `-i`
 option. Say you have two files `a.txt` and `b.txt` and you want to compare them:
@@ -93,10 +98,17 @@ cooccurrents.py
 
 `cooccurrent.py` takes a corpus that can be multiple files. Since there is no
 partitioning required, you simply provide the corpus as multiple arguments
-with no options. It also takes a target token to gather its cooccurrents. Since
-it would be error prone to simply provide the target token as a simple argument
-(it could be mistaken with a file of the corpus), the target token has to be
-provided with the required option `--target`:
+with no options. It also takes a target token to gather its cooccurrents. If you
+want some help on how the command works, you can provide the `--help` or `-h`
+option:
+
+.. code-block:: bash
+
+	python3 ./cooccurrents.py -h
+
+Since it would be error prone to simply provide the target token as a simple
+argument (it could be mistaken with a file of the corpus), the target token has
+to be provided with the required option `--target`:
 
 .. code-block:: bash
 
