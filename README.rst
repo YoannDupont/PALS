@@ -21,7 +21,7 @@ There are some uses for these script, including but not limited to:
 
 - no install (except for python on Windows), no dependencies, command line only
 - minimal data preprocessing required (one token per line)
-- no indexing, this saves time in big input
+- no indexing, this saves time on big input
 - command line options for quick and versatile configuration
 
 This is not a drop-in replacement of existing tools. I just made these scripts
@@ -64,7 +64,7 @@ partition.py
 ------------
 
 `partition.py` wants to have a corpus split into parts. There are two ways to
-provides the parts that make up a corpus. If you want some help on how the
+provide the parts that make up a corpus. If you want some help on how the
 command works, you can provide the `--help` or `-h` option:
 
 .. code-block:: bash
@@ -72,13 +72,14 @@ command works, you can provide the `--help` or `-h` option:
 	python3 ./partition.py -h
 
 The first way is to repeatedly provide data by using the `--input` or `-i`
-option. Say you have two files `a.txt` and `b.txt` and you want to compare them:
+option. Say you have two files `a.txt` and `b.txt` and you want to compare them
+against each other:
 
 .. code-block:: bash
 
 	python3 ./partition.py -i a.txt -i b.txt
 
-You could also compare two folder `f1` and `f2`:
+You could also compare two folders `f1` and `f2`:
 
 .. code-block:: bash
 
@@ -93,10 +94,18 @@ by using the `--inputs` (with an `s`) switch. This switch is incompatible with
 
 	python3 ./partition.py --inputs folder/*
 
+You can also provide an experimental emulation of existing tools like TXM and
+itrameur with the option `--tool-emulation` or `-t`:
+
+.. code-block:: bash
+
+	python3 ./partition.py -i f1/* -i f2/* --tool-emulation TXM
+	python3 ./partition.py -i f1/* -i f2/* -t itrameur
+
 cooccurrents.py
 ---------------
 
-`cooccurrent.py` takes a corpus that can be multiple files. Since there is no
+`cooccurrents.py` takes a corpus that can be multiple files. Since there is no
 partitioning required, you simply provide the corpus as multiple arguments
 with no options. It also takes a target token to gather its cooccurrents. If you
 want some help on how the command works, you can provide the `--help` or `-h`
@@ -117,8 +126,27 @@ to be provided with the required option `--target`:
 By default, only tokens that are stricly equal to target will be considered. If
 you want to provide your target as a regular expression (for handling declension
 for example), you can tell the script to match using regular expressions instead
-with the option `--match-mode`:
+with the option `--match-mode`.
 
 .. code-block:: bash
 
 	python3 ./cooccurrents.py a.txt b.txt --target "[Ff]oo" --match-mode regex
+
+This regular expression has to match the whole token, be sure to use jokers `.*`
+when necessary. For example, the first command will match any token that starts
+with `a` and the second one any token that ends with `a` and the third one any
+token than contains `a`:
+
+.. code-block:: bash
+
+	python3 ./cooccurrents.py a.txt b.txt --target "^a.*" --match-mode regex
+	python3 ./cooccurrents.py a.txt b.txt --target ".*a$" --match-mode regex
+	python3 ./cooccurrents.py a.txt b.txt --target ".*a.*" --match-mode regex
+
+You can also provide an experimental emulation of existing tools like TXM and
+itrameur with the option `--tool-emulation` or `-t`:
+
+.. code-block:: bash
+
+	python3 ./cooccurrents.py a.txt b.txt --target foo --tool-emulation TXM
+	python3 ./cooccurrents.py a.txt b.txt --target foo -t itrameur
