@@ -10,9 +10,9 @@
     Tool emulation:
     By default, this will give results compatible with neither TXM nor itrameur.
     You can switch use the --tool-emulation switch to provide results that
-    should be compatible with what you get form other tools at equivalent
+    should be closer with what you get form other tools at equivalent
     configuration. This is not perfect and results might be slightly different
-    from the actual tool.
+    from the actual tool, this was done by trial and error.
 
     Feedback:
     This script will output some feedback because processing might take some
@@ -107,7 +107,7 @@ def log_hypergeometric(T: int, t: int, F: int, f: int) -> float:
 def lafon_specificity(T: int, t: int, F: int, f: int, tool_emulation: str = 'None') -> float:
     """
     Compute Lafon specificity given corpus and subcorpus counts. Internally, it
-    uses a symmertry in the hypergeometric formula for a quicker computation.
+    uses a symmetry in the hypergeometric formula for a quicker computation.
 
     See:
         - Lafon, P. (1980). Sur la variabilité de la fréquence des formes dans un corpus. Mots (1), 127-165.
@@ -196,6 +196,7 @@ def get_counts(
     sentences: list[tuple[int,int]],
     target_indices: list[int],
     context_length: int,
+    ignore_sentences : bool = False,
     tool_emulation: str='None',
 ):
     T = len(tokens)
@@ -206,18 +207,31 @@ def get_counts(
 
     sents = []
     indices = deque(target_indices)
-    for sentence in sentences:
-        start, end = sentence
-        sents.append([sentence, []])
-        while indices and start <= indices[0] < end:
-            sents[-1][1].append(indices.popleft())
-        if not sents[-1][1]:
-            sents.pop()
-        if not indices:
-            break
+    if not ignore_sentences:
+        for sentence in sentences:
+            start, end = sentence
+            sents.append([sentence, []])
+            while indices and start <= indices[0] < end:
+                sents[-1][1].append(indices.popleft())
+            if not sents[-1][1]:
+                sents.pop()
+            if not indices:
+                break
 
-    for sentence, indices in sents:
-        start, end = sentence
+        for sentence, indices in sents:
+            start, end = sentence
+            for idx in indices:
+                lst = [
+                    item
+                    for item in range(
+                        max(idx - context_length, start),
+                        min(idx + context_length + 1, end)
+                    )
+                    if item != idx
+                ]
+                fs_tmp.update(lst)
+    else:
+        start, end = 0, len(tokens)
         for idx in indices:
             lst = [
                 item
@@ -249,17 +263,36 @@ def run(
     context_length: int = 10,
     min_frequency: int = 1,
     min_cofrequency: int = 1,
+    ignore_sentences : bool = False,
     tool_emulation: str = 'None',
 ) -> None:
 
     if tool_emulation == 'itrameur':
-        punctuations = 'ignore'
+        given_punctuations = punctuations
+        given_context_length = context_length
 
         # Ugly workaround to approximate itrameur behaviour.
         # In itrameur, tokens are separated by delimiters (punctuations, but also
         # spaces). There cannot be two consecutive tokens. This is an optimistic
         # approximation because tokens may be separated by multiple delimiters.
         context_length = context_length // 2
+        punctuations = 'ignore'
+
+        if given_punctuations != punctuations:
+            print(
+                f"WARNING: itrameur emulation => punctuations set to {punctuations}\n",
+                file=sys.stderr
+            )
+
+    elif tool_emulation == 'TXM':
+        given_ignore_sentences = ignore_sentences
+
+        ignore_sentences = True
+        if given_ignore_sentences != ignore_sentences:
+            print(
+                f"WARNING: TXM emulation => ignore_sentences set to {ignore_sentences}\n",
+                file=sys.stderr
+            )
 
     if context_length < 1:
         raise ValueError(f"Context length should be at least 1, but is {context_length}")
@@ -270,7 +303,7 @@ def run(
     )
 
     T, t, Fs, fs = get_counts(
-        tokens, sentences, target_indices, context_length, tool_emulation=tool_emulation
+        tokens, sentences, target_indices, context_length, ignore_sentences=ignore_sentences, tool_emulation=tool_emulation
     )
 
     print("Computing specificities...", file=sys.stderr)
@@ -280,12 +313,6 @@ def run(
         if count < min_cofrequency: break
         if Fs[token] < min_frequency: continue
         filteredin[token] = count
-
-    # Unsure about this one. TXM *seems* to compute specificities on the
-    # filtered-in data rather than just hiding filtered-out results.
-    if tool_emulation == 'TXM':
-        T = sum(Fs[token] for token in filteredin)
-        t = sum(fs[token] for token in filteredin)
 
     data = []
     for token, count in progress(filteredin.most_common()):
@@ -307,22 +334,13 @@ def run(
         target = f'{match_mode}={target}'
         shape_counts.insert(0, [target, target_count])
 
-    if tool_emulation == 'TXM':
-        print('target', 'corpus size', 'frequency', sep='\t')
-        #  print(target, T, target_count, sep='\t')
-        for shape, count in shape_counts:
-            print(shape, T, count, sep='\t')
-    else:
-        print('target', 'frequency', sep='\t')
-        #  print(target, target_count, sep='\t')
-        for shape, count in shape_counts:
-            print(shape, count, sep='\t')
-    print()
-    
-    if tool_emulation == 'TXM':
-        print('token', 'filtered corpus size', 'all contexts size', 'frequency', 'co-frequency', 'specificity', sep='\t')
-    else:
-        print('token', 'corpus size', 'all contexts size', 'frequency', 'co-frequency', 'specificity', sep='\t')
+    print(file=sys.stderr)
+    print('target', 'frequency', sep='\t', file=sys.stderr)
+    for shape, count in shape_counts:
+        print(shape, count, sep='\t', file=sys.stderr)
+    print(file=sys.stderr)
+
+    print('token', 'corpus size', 'all contexts size', 'frequency', 'co-frequency', 'specificity', sep='\t')
 
     n_firsts = (n_firsts if n_firsts > 0 else len(data))
     for token, tok_F, tok_f, tok_specif in data[:n_firsts]:
@@ -379,6 +397,12 @@ def main(argv=None):
         choices=('None', 'itrameur', 'TXM'),
         default='None',
         help='Try to emulate the results of the given tool (default: %(default)s)',
+    )
+    parser.add_argument(
+        '-i',
+        '--ignore-sentences',
+        action='store_true',
+        help='Ignore sentence bounds when counting cooccurrents.',
     )
 
     args = parser.parse_args(argv)

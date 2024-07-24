@@ -50,7 +50,6 @@ from math import log10
 # workaround to avoid regex dependency and keep script self-contained.
 __punctuations = re.compile("[" + re.escape(string.punctuation) + "«»…" + "]+")
 
-# why?
 __tool_delta = {
     'itrameur': -1.0,
 }
@@ -204,7 +203,14 @@ def run(
         raise ValueError('At least 2 sources required')
 
     if tool_emulation == 'itrameur':
+        given_punctuations = punctuations
         punctuations = 'ignore'
+
+        if given_punctuations != punctuations:
+            print(
+                f"WARNING: itrameur emulation => punctuations set to {punctuations}\n",
+                file=sys.stderr
+            )
 
     T, ts, F, fs = get_counts(progress(inputs), punctuations, case_sensitivity)
 
@@ -212,6 +218,16 @@ def run(
     names = [f'part-{nth}' for nth in range(1, len(inputs)+1)]  # meh
 
     # tried to make the least worst printing while avoiding stuff like pandas data frames.
+    # This is pretty meh at best.
+
+    print(file=sys.stderr)
+    cpy = [lst[:] for lst in inputs]
+    maxlen = max(len(lst) for lst in cpy)
+    cpy = [item + [''] * (maxlen - len(item)) for item in cpy]
+    print(*names, sep="\t", file=sys.stderr)
+    for j in range(maxlen):
+        print(*[cpy[i][j] for i in range(len(cpy))], sep="\t", file=sys.stderr)
+    print(file=sys.stderr)
 
     header = ['item', 'total'] + flatten([[f'count {name}', f'specif {name}'] for name in names])
     print('\t'.join(header))

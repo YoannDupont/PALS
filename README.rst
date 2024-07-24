@@ -27,12 +27,6 @@ There are some uses for these script, including but not limited to:
 This is not a drop-in replacement of existing tools. I just made these scripts
 to have some way to quickly try stuff and just share them.
 
-License
--------
-
-There is no licence at the moment because I am looking for the right one. See
-what this means according to the `GitHub documentation <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository#choosing-the-right-license>`_
-
 How to launch these scripts?
 ============================
 
@@ -53,12 +47,24 @@ differ from off-the-shelf tools. I tried to emulate what they would output, but
 do not expect to have the exact same results, there is some guess work which may
 be completely wrong.
 
+Tool emulation is a preset for some options that can be configured through the
+CLI. If an incompatible option is found, it will be overriden by the emulated
+tool's preset and a warning message well be displayed.
+
 The tools you may try to emulate are:
 
 - `TXM <https://txm.gitpages.huma-num.fr/textometrie/>`_
 - `itrameur <http://www.tal.univ-paris3.fr/trameur/iTrameur/>`_
 
-If you want to have these tools actual results, use them.
+If you want to have these tools' actual results, use them.
+
+Output format
+-------------
+
+The output format of the scripts are tabular data. In addition to this data,
+some information and feedback is displayed on standard error before the actual
+result. You can redirect standard error to /dev/null if you want a cleaner
+output, especially if you pipe the resulting tabular data to other processes.
 
 partition.py
 ------------
