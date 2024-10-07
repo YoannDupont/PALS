@@ -156,12 +156,12 @@ def read_corpus(
     target : str,
     punctuations: str = 'ignore',
     case_sensitivity: str = 'sensitive',
-    match: typing.Callable = str.__eq__
+    match: typing.Callable = str.__eq__,
 ) -> tuple[list, list, list]:
 
     tokens: list[str] = []
     sentences: list[tuple[int, int]] = []
-    target_indices : list[int] = []
+    target_indices: list[int] = []
     start = 0
     end = 0
     ignore_punctuations = punctuations == 'ignore'
@@ -199,6 +199,7 @@ def get_counts(
     ignore_sentences : bool = False,
     tool_emulation: str='None',
 ):
+
     T = len(tokens)
     t = 0
     Fs = Counter(tokens)
@@ -298,6 +299,7 @@ def run(
         raise ValueError(f"Context length should be at least 1, but is {context_length}")
 
     print("Reading...", file=sys.stderr)
+
     tokens, sentences, target_indices = read_corpus(
         inputs, target, punctuations, case_sensitivity, match=match_strategy[match_mode]
     )
