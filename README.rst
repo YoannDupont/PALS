@@ -8,7 +8,7 @@ What are these scripts?
 
 These scripts are here to help you compute Lafon's specificity with only the
 terminal. They are pure python scripts without any dependency that needs to be
-installed and anyone can launch them. These script can be configured to try and
+installed and anyone can launch them. These scripts can be configured to try and
 emulate some existing tools that provide ways to compute Lafon specificity,
 namely `TXM <https://txm.gitpages.huma-num.fr/textometrie/>`_ and
 `itrameur <http://www.tal.univ-paris3.fr/trameur/iTrameur/>`_. The emulation of
@@ -49,7 +49,7 @@ be completely wrong.
 
 Tool emulation is a preset for some options that can be configured through the
 CLI. If an incompatible option is found, it will be overriden by the emulated
-tool's preset and a warning message well be displayed.
+tool's preset and a warning message will be displayed.
 
 The tools you may try to emulate are:
 
